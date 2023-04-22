@@ -1,5 +1,6 @@
 export default function Movies ({ data }) {
   if (!data) return <p>No hay datos</p>
+
   return (
     <div className='movies'>
       {data.map(el => (

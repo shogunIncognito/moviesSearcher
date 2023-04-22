@@ -1,10 +1,17 @@
+import { useCallback, useState } from 'react'
 import Movies from './components/Movies'
 import useChange from './hooks/useChange'
 import useMovies from './hooks/useMovies'
+import debounce from 'just-debounce-it'
 
 function App () {
-  const { query, handleChange, error } = useChange()
-  const { data, fetchMovie, loading } = useMovies()
+  const [isSort, setIsSort] = useState(false)
+  const { query, setQuery, error } = useChange()
+  const { movies, fetchMovie, loading } = useMovies({ isSort })
+
+  const debouncedFetch = useCallback(debounce(query => {
+    fetchMovie(query)
+  }, 300), [])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -12,17 +19,29 @@ function App () {
     fetchMovie(query)
   }
 
+  const handleChange = (e) => {
+    const newQuery = e.target.value
+    if (newQuery.startsWith(' ')) return
+    setQuery(newQuery)
+    debouncedFetch(newQuery)
+  }
+
+  const handleSort = () => setIsSort(!isSort)
+
   return (
     <div className='app'>
 
-      <form onSubmit={handleSubmit}>
+      <form style={{ display: 'flex', flexDirection: 'column' }} onSubmit={handleSubmit}>
         <input required onChange={handleChange} value={query} name='query' type='text' placeholder='Bladerunner 2049...' />
-        <button>Buscar</button>
+        <div>
+          <button>Buscar</button>
+          <button disabled={!movies} style={{ backgroundColor: isSort && 'green' }} onClick={handleSort}>Ordenar</button>
+        </div>
       </form>
 
-      {loading ? <p>Cargando...</p> : <Movies data={data} />}
-
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      {loading ? <p>Cargando...</p> : <Movies data={movies} />}
+
     </div>
   )
 }

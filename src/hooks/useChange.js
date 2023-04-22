@@ -24,15 +24,9 @@ export default function useChange () {
     setError(false)
   }, [query])
 
-  const handleChange = (e) => {
-    const newQuery = e.target.value
-    if (newQuery.startsWith(' ')) return
-    setQuery(e.target.value)
-  }
-
   return {
     query,
-    handleChange,
+    setQuery,
     error
   }
 }
