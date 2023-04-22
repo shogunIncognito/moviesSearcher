@@ -11,11 +11,11 @@ npm install
 npm run dev
 
 ```
-## production
+## Production
 ```
 npm run build
 
-// to see builded app
+// To see builded app
 npm run preview
 
 ```
