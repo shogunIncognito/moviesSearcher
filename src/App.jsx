@@ -1,37 +1,28 @@
-import { useState, useEffect, useRef } from 'react'
+import Movies from './components/Movies'
+import useChange from './hooks/useChange'
+import useMovies from './hooks/useMovies'
 
-function App() {
-  const [data, setData] = useState([])
-  const inputRef = useRef()
+function App () {
+  const { query, handleChange, error } = useChange()
+  const { data, fetchMovie, loading } = useMovies()
 
-  const fetchMovie = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    const inputEl = inputRef.current.value
-    fetch(`https://www.omdbapi.com/?s=${inputEl}&apikey=406f0ce1`)
-      .then(res => res.json())
-      .then((json) => setData(json.Search))  
+    if (error) return
+    fetchMovie(query)
   }
 
   return (
-    <div className="app">
-      <form onSubmit={fetchMovie}>
-        <input onChange={fetchMovie} ref={inputRef} type="text" placeholder='Bladerunner 2049...' />
+    <div className='app'>
+
+      <form onSubmit={handleSubmit}>
+        <input required onChange={handleChange} value={query} name='query' type='text' placeholder='Bladerunner 2049...' />
         <button>Buscar</button>
       </form>
-      <div className='movies'>
-        {
-          !data || data.length === 0 ?
-            <p>Nada...</p>
-            :            
-            data.map(el => (
-              <div key={el.imdbID}>
-                <h4>{el.Title}</h4>
-                <p>{el.Year}</p>
-              <img style={{ height: '80%' }} src={el.Poster} alt={el.Title} />
-            </div>
-            ))            
-        }
-      </div>
+
+      {loading ? <p>Cargando...</p> : <Movies data={data} />}
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   )
 }
